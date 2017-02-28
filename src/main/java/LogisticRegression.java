@@ -17,40 +17,6 @@ public class LogisticRegression {
 
     /**
      * 模型训练
-     * @param X
-     * @param Y
-     * @param weigth
-     * @param rate
-     * @param iter
-     * @param opt
-     */
-    public static void trainSGD(
-            double[][] X,
-            double[] Y,
-            double[] weigth,
-            double rate,
-            int iter,
-            int opt
-    ){
-        double N = Y.length;
-        double dim = X[0].length;
-        for (int it = 0; it < iter; it++){
-            double logLikelihood = 0.0;
-            for (int i = 0; i < N; i++) {
-                double label = Y[i];
-                double predict = predict(X[i], weigth);
-                for (int d = 0; d < dim; d++) {
-                    weigth[d] = weigth[d] - rate * (label - predict) * X[i][d]/N;
-                }
-                logLikelihood += label*Math.log(predict) + (1-label)*Math.log(1-predict);
-            }
-            System.out.println("iter "+it+" logLikelihood:" + logLikelihood);
-            //System.out.println("acc "+acc(s.m));
-        }
-    }
-
-    /**
-     * 模型训练
      * @param s
      * @param m
      * @param rate
@@ -120,63 +86,23 @@ public class LogisticRegression {
         return 1.0/(1.0 + Math.exp(-x));    //!!! 写成了，Math.log()
     }
 
-    public static void loadData(String train_file, sample s){
-        BufferedReader br = text_proc.readFile(train_file);
-        BufferedReader br2 = text_proc.readFile(train_file);
-        String line = "";
-        int N = 0;      //样本数
-        int dim = 0;
 
-        try {
-            line = br.readLine();
-            dim = line.split("[, ]").length-1;
-            N++;
-            while ((line = br.readLine()) != null){
-                if (line.trim().length() > 1){
-                    N++;
-                }
-            }
-            s.setN(N);
-            s.setDim(dim+1);    //多出一个偏置项
-            double[][] x = new double[N][dim+1];
-            for (int d = 0; d < N; d++) {
-                x[d][dim] = 1;
-             }
-            double[] y = new double[N+1];
-            int i = 0;
-            while ((line = br2.readLine())!=null){
-                if (line.trim().length() <= 1){
-                    continue;
-                }
-                String[] arr = line.split("[ ,]");
-                y[i] = Integer.parseInt(arr[0]);
-                for (int d = 0; d < dim; d++) {
-                    x[i][d] = Double.parseDouble(arr[d+1]);
-                }
-                i++;
-            }
-            s.setX(x);
-            s.setY(y);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
 
 
     public static void main(String[] args) {
         //String train_file = args[0];
-        String train_file = ".\\src\\main\\java\\data\\2_iris.txt";
+        String train_file = ".\\src\\main\\java\\data\\2_iris_train.txt";
         sample s = new sample();
-        loadData(train_file, s);
+        s.loadData(train_file);
         model m = new model();
         m.setWeight(new double[s.getDim()]);
-        double rate = 0.1;
+        double rate = 10000;
         trainSGD(s, m, rate, 1000, 1);
 
         sample s_test = new sample();
-        String test_file = ".\\src\\main\\java\\data\\2_iris.txt";
-        loadData(test_file,s_test);
+        String test_file = ".\\src\\main\\java\\data\\2_iris_test.txt";
+        s_test.loadData(test_file);
         double acc_test = acc(s_test,m);
         System.out.println("acc_test:"+acc_test);
     }
