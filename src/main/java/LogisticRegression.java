@@ -86,25 +86,29 @@ public class LogisticRegression {
         return 1.0/(1.0 + Math.exp(-x));    //!!! 写成了，Math.log()
     }
 
-
-
-
-
     public static void main(String[] args) {
         //String train_file = args[0];
+
+        //iris
         String train_file = ".\\src\\main\\java\\data\\2_iris_train.txt";
         sample s = new sample();
         s.loadData(train_file);
         model m = new model();
         m.setWeight(new double[s.getDim()]);
         double rate = 10000;
-        trainSGD(s, m, rate, 1000, 1);
+        //trainSGD(s, m, rate, 1000, 1);
 
+        // heart scale
         sample s_test = new sample();
-        String test_file = ".\\src\\main\\java\\data\\2_iris_test.txt";
-        s_test.loadData(test_file);
-        double acc_test = acc(s_test,m);
-        System.out.println("acc_test:"+acc_test);
+        String test_file = ".\\src\\main\\java\\data\\heart_scale.txt";
+        s_test.loadDataSVM(test_file);
+        model m_heart = new model();
+        m_heart.setWeight(new double[s_test.getDim()]);
+        trainSGD(s_test,m_heart,0.1,100000,1);
+        //double acc_test = acc(s_test,m);
+        //System.out.println("acc_test:"+acc_test);
+
+
     }
 
 }

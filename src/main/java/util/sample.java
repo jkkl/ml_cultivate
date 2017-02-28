@@ -84,7 +84,7 @@ public class sample {
     }
 
     /**
-     * 数据格式 label v1 v2 ....
+     * 数据格式 label indexi:vi  ....
      * @param train_file
      */
     public void loadDataSVM(String train_file){
@@ -92,33 +92,61 @@ public class sample {
         BufferedReader br2 = text_proc.readFile(train_file);
         String line = "";
         int N = 0;      //样本数
-        int dim = 0;
 
         try {
-            line = br.readLine();
-            dim = line.split("[, ]").length-1;
-            N++;
+//            line = br.readLine();
+//            dim = line.split("[, ]").length-1;
+//            N++;
+            int max_dim = 0;
             while ((line = br.readLine()) != null){
-                if (line.trim().length() > 1){
-                    N++;
+                if (line.trim().length() <= 1){
+                    continue;
                 }
+                String arr[] = line.split("[ \t]");
+                for (String e: arr){
+                    String e_arr[] = e.split(":");
+                    if (e_arr.length < 2)
+                        continue;
+                    int index = Integer.parseInt(e_arr[0]);
+                    if (max_dim < index){
+                        max_dim = index;
+                    }
+                }
+                N++;
             }
             this.setN(N);
-            this.setDim(dim+1);    //多出一个偏置项
-            double[][] x = new double[N][dim+1];
+            this.setDim(max_dim + 1);    //多出一个偏置项
+            System.out.println("特征维数+1:" + dim);
+            System.out.println("样本数:" + N);
+
+            double[][] x = new double[N][dim];
             for (int d = 0; d < N; d++) {
-                x[d][dim] = 1;
+                x[d][dim-1] = 1;
             }
-            double[] y = new double[N+1];
+            double[] y = new double[N];
             int i = 0;
             while ((line = br2.readLine())!=null){
                 if (line.trim().length() <= 1){
                     continue;
                 }
-                String[] arr = line.split("[ ,]");
-                y[i] = Integer.parseInt(arr[0]);
-                for (int d = 0; d < dim; d++) {
-                    x[i][d] = Double.parseDouble(arr[d+1]);
+                String[] arr = line.split("[ ,\t]");
+                if (arr[0].equals("+1")){
+                    y[i] = 1;
+                }else if(arr[0].equals("-1")){
+                    y[i] = 0;
+                }else{
+                    y[i] = Integer.parseInt(arr[0]);
+                }
+
+                for (String f : arr) {
+                    String f_arr[] = f.split(":");
+                    if (f_arr.length < 2)
+                        continue;
+                    int index = Integer.parseInt(f_arr[0]);
+                    double val = Double.parseDouble(f_arr[1]);
+                    if (f_arr.length < 2)
+                        continue;
+                    x[i][index] = val;
                 }
                 i++;
             }
